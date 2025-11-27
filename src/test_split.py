@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import TextNode, TextType
-from split import split_nodes_delimiter
+from md_functions import split_nodes_delimiter
 
 class Test_Split_Nodes_Delimiter(unittest.TestCase):
     def test_bold(self):
