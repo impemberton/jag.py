@@ -2,7 +2,7 @@ import unittest
 from md_functions import extract_markdown_images, extract_markdown_links
 
 
-class Test_Regex_Matching(unittest.TestCase):
+class TestRegexMatching(unittest.TestCase):
     def test_extract_markdown_images(self):
         matches = extract_markdown_images(
             "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png)"
