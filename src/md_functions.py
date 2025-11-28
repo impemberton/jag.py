@@ -1,3 +1,4 @@
+from enum import Enum
 import re
 from textnode import TextType, TextNode
 
@@ -83,4 +84,22 @@ def text_to_textnodes(text):
     nodes = split_nodes_image(nodes)
     nodes = split_nodes_link(nodes)
     return nodes
+
+def markdown_to_blocks(markdown):
+    blocks = []
+    for block in markdown.split("\n\n"):
+        block = block.strip()
+        if len(block) > 0:
+            blocks.append(block)
+    return blocks
+
+class BlockType(Enum):
+    PARAGRAPH="paragraph"
+    HEADING="heading"
+    CODE="code"
+    QUOTE="quote"
+    UNORDERED_LIST="unordered_list"
+    ORDERED_LIST="ordered_list"
+
+
 
