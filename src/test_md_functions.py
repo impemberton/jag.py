@@ -6,7 +6,9 @@ from md_functions import (
     split_nodes_link,
     split_nodes_image,
     text_to_textnodes,
-    markdown_to_blocks
+    markdown_to_blocks,
+    block_to_block_type,
+    BlockType
 )
 
 
@@ -313,3 +315,88 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+class TestBlockToBlockType(unittest.TestCase):
+    def test_block_to_block_type_paragraph(self):
+        paragraph = "This is a test paragraph"
+        block_type = block_to_block_type(paragraph)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_heading(self):
+        paragraph = "# This is a test heading1"
+        block_type = block_to_block_type(paragraph)
+        self.assertEqual(block_type, BlockType.HEADING)
+
+    def test_block_to_block_type_heading2(self):
+        paragraph = "#### This is a test heading4"
+        block_type = block_to_block_type(paragraph)
+        self.assertEqual(block_type, BlockType.HEADING)
+
+    def test_block_to_block_type_heading3(self):
+        paragraph = "####### This is a test heading with too many hashes"
+        block_type = block_to_block_type(paragraph)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_code1(self):
+        code_block = "```This is a test code block```"
+        block_type = block_to_block_type(code_block)
+        self.assertEqual(block_type, BlockType.CODE)
+
+    def test_block_to_block_type_code2(self):
+        code_block = "``This is a test code block missing a backtick```"
+        block_type = block_to_block_type(code_block)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_quote(self):
+        quote = "> This is a test quote"
+        block_type = block_to_block_type(quote)
+        self.assertEqual(block_type, BlockType.QUOTE)
+        
+    def test_block_to_block_type_multiline_quote(self):
+        quote = """> This is a test quote
+> more quote
+> even more quote"""
+        block_type = block_to_block_type(quote)
+        self.assertEqual(block_type, BlockType.QUOTE)
+
+    def test_block_to_block_type_multiline_quote2(self):
+        quote = """> This is a test quote
+more quote but missing a >
+> even more quote"""
+        block_type = block_to_block_type(quote)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_unordered_list(self):
+        ul = """- first item
+- second item
+- third item"""
+        block_type = block_to_block_type(ul)
+        self.assertEqual(block_type, BlockType.UNORDERED_LIST)
+
+    def test_block_to_block_type_unordered_list2(self):
+        ul = """- first item
+second item missing -
+- third item"""
+        block_type = block_to_block_type(ul)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_ordered_list(self):
+        ol = """1. first item
+2. second item 
+3. third item"""
+        block_type = block_to_block_type(ol)
+        self.assertEqual(block_type, BlockType.ORDERED_LIST)
+
+    def test_block_to_block_type_ordered_list2(self):
+        ol = """1. first item
+second item missing 2. 
+3. third item"""
+        block_type = block_to_block_type(ol)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)
+
+    def test_block_to_block_type_ordered_list3(self):
+        ol = """3. first item
+5. this list is messed up 
+1. third item"""
+        block_type = block_to_block_type(ol)
+        self.assertEqual(block_type, BlockType.PARAGRAPH)

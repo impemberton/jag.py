@@ -101,5 +101,33 @@ class BlockType(Enum):
     UNORDERED_LIST="unordered_list"
     ORDERED_LIST="ordered_list"
 
+def block_to_block_type(block):
+    for i in range(1,7):
+        if block.startswith(("#" * i) + " "):
+            return BlockType.HEADING
+    if block.startswith("```") and block.endswith("```"):
+        return BlockType.CODE
+    is_quote = True
+    is_unordered = True
+    is_ordered = True
+    list_num = 1
+    for line in block.split("\n"):
+        if not line.startswith(">"):
+            is_quote = False
+        if not line.startswith("- "):
+            is_unordered = False
+        if not line.startswith(str(list_num) + ". "):
+            is_ordered = False
+        list_num += 1
+
+    if is_quote:
+        return BlockType.QUOTE
+    if is_unordered:
+        return BlockType.UNORDERED_LIST
+    if is_ordered:
+        return BlockType.ORDERED_LIST
+    return BlockType.PARAGRAPH
+
+
 
 
