@@ -1,6 +1,6 @@
 from md_functions import generate_page_recursive
 from textnode import TextNode, TextType
-import os, shutil
+import os, shutil, sys
 
 def copydir(source, dest):
     if not os.path.exists(dest):
@@ -25,7 +25,8 @@ def copydir(source, dest):
 
 
 def main():
-    copydir("static", "public")
-    generate_page_recursive("content", "template.html", "public")
+    basepath = sys.argv[1] if sys.argv[1] is not None else "/"
+    copydir("static", "docs")
+    generate_page_recursive("content", "template.html", "docs", basepath)
 
 main()
