@@ -1,3 +1,4 @@
+from md_functions import generate_page_recursive
 from textnode import TextNode, TextType
 import os, shutil
 
@@ -24,8 +25,7 @@ def copydir(source, dest):
 
 
 def main():
-    node = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
-    print(node)
     copydir("static", "public")
+    generate_page_recursive("content", "template.html", "public")
 
 main()

@@ -2,6 +2,7 @@ import unittest
 
 from textnode import TextNode, TextType
 from md_functions import (
+    extract_title,
     split_nodes_delimiter,
     split_nodes_link,
     split_nodes_image,
@@ -434,3 +435,16 @@ the **same** even with inline stuff
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
+
+class TestExtractTitle(unittest.TestCase):
+    def test_extract_title(self):
+        markdown = "# Hello"
+        title = extract_title(markdown)
+        self.assertEqual(title, "Hello")
+
+    def test_extract_title2(self):
+        markdown = """# This is another test
+## This is a subtitle
+"""
+        title = extract_title(markdown)
+        self.assertEqual(title, "This is another test")
