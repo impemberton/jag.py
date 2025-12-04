@@ -1,6 +1,7 @@
 from enum import Enum
 import re
 from textnode import TextType, TextNode
+from htmlnode import LeafNode, ParentNode
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -128,6 +129,67 @@ def block_to_block_type(block):
         return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
 
+def text_node_to_html_node(text_node):
+    match text_node.text_type:
+        case TextType.TEXT:
+            return LeafNode(tag=None, value=text_node.text)
+        case TextType.BOLD:
+            return LeafNode(tag="b", value=text_node.text)
+        case TextType.ITALIC:
+            return LeafNode(tag="i", value=text_node.text)
+        case TextType.CODE:
+            return LeafNode(tag="code", value=text_node.text)
+        case TextType.LINK:
+            props = {"href": text_node.url}
+            return LeafNode(tag="a", value=text_node.text, props=props)
+        case TextType.IMAGE:
+            props = {
+                "src": text_node.url,
+                "alt": text_node.text
+            }
+            return LeafNode(tag="img", value=None, props=props)
+        case _:
+            raise Exception("Invalid TextType Enum")
 
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    block_nodes = []
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        match block_type:
+            case BlockType.PARAGRAPH:
+                child_nodes = text_to_children(block.replace("\n", " "))
+                block_nodes.append(ParentNode("p", child_nodes))
+            case BlockType.HEADING:
+                hashes, block = block.split(" ", 1)
+                child_nodes = text_to_children(block)
+                block_nodes.append(ParentNode("h" + str(len(hashes)), child_nodes))
+            case BlockType.QUOTE:
+                block = "\n".join([line[2:] for line in block.split("\n")])
+                child_nodes = text_to_children(block)
+                block_nodes.append(ParentNode("blockquote", child_nodes))
+            case BlockType.UNORDERED_LIST:
+                list_items = []
+                for li in block.split("\n"):
+                    child_nodes = text_to_children(li[2:])
+                    list_items.append(ParentNode("li", child_nodes))
+                block_nodes.append(ParentNode("ul", list_items))
+            case BlockType.ORDERED_LIST:
+                list_items = []
+                for li in block.split("\n"):
+                    child_nodes = text_to_children(li[3:])
+                    list_items.append(ParentNode("li", child_nodes))
+                block_nodes.append(ParentNode("ol", list_items))
+            case BlockType.CODE:
+                text_node = TextNode(block[4:-3], TextType.CODE)
+                child_node = text_node_to_html_node(text_node)
+                block_nodes.append(ParentNode("pre", [child_node]))
+    return ParentNode("div", block_nodes)
+                
 
-
+def text_to_children(text):
+    html_nodes = []
+    text_nodes = text_to_textnodes(text)
+    for text_node in text_nodes:
+        html_nodes.append(text_node_to_html_node(text_node))
+    return html_nodes

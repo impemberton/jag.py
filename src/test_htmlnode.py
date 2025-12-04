@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode
+from htmlnode import HTMLNode 
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -40,3 +40,4 @@ class TestHTMLNode(unittest.TestCase):
         test_string = ' href="https://www.test.com" target="_blank"'
         node = HTMLNode(props=props)
         self.assertEqual(node.props_to_html(), test_string)
+

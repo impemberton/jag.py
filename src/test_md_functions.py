@@ -8,7 +8,8 @@ from md_functions import (
     text_to_textnodes,
     markdown_to_blocks,
     block_to_block_type,
-    BlockType
+    BlockType,
+    markdown_to_html_node
 )
 
 
@@ -400,3 +401,36 @@ second item missing 2.
 1. third item"""
         block_type = block_to_block_type(ol)
         self.assertEqual(block_type, BlockType.PARAGRAPH)
+        
+class TestMarkdownToHTMLNode(unittest.TestCase):
+    def test_paragraphs(self):
+        md = """
+This is **bolded** paragraph
+text in a p
+tag here
+
+This is another paragraph with _italic_ text and `code` here
+
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><p>This is <b>bolded</b> paragraph text in a p tag here</p><p>This is another paragraph with <i>italic</i> text and <code>code</code> here</p></div>",
+        )
+
+    def test_codeblock(self):
+        md = """
+```
+This is text that _should_ remain
+the **same** even with inline stuff
+```
+"""
+
+        node = markdown_to_html_node(md)
+        html = node.to_html()
+        self.assertEqual(
+            html,
+            "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
+        )
